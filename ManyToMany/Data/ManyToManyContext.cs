@@ -24,7 +24,8 @@ namespace ManyToMany.Data
             modelBuilder.Entity<PostTag>()
                 .HasOne(pt => pt.Post)
                 .WithMany(pt => pt.PostTags)
-                .HasForeignKey(p => p.PostId);
+                .HasForeignKey(p => p.PostId)
+                .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<PostTag>()
                 .HasOne(pt => pt.Tag)

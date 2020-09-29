@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ManyToMany.Migrations
 {
     [DbContext(typeof(ManyToManyContext))]
-    [Migration("20200929131849_inicial")]
+    [Migration("20200929172844_inicial")]
     partial class inicial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

@@ -31,9 +31,11 @@ namespace ManyToMany.Controllers
         }
 
         // GET: PostsController/Details/5
-        public ActionResult Details(int id)
+        public ActionResult Details(Guid id)
         {
-            return View();
+            var model = _unitOfWork.Post.GetById(id);
+            var vm = _mapper.Map<PostViewModel>(model);
+            return View(vm);
         }
 
         // GET: PostsController/Create
@@ -156,6 +158,7 @@ namespace ManyToMany.Controllers
             try
             {
                 var model = _mapper.Map<Post>(vm);
+                
                 _unitOfWork.Post.Delete(model);
                 _unitOfWork.Save();
 
