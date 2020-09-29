@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using AutoMapper;
 using ManyToMany.Interfaces;
 using ManyToMany.Models;
@@ -45,9 +47,9 @@ namespace ManyToMany.Controllers
             }
             var vm = new CreatePostViewModel()
             {
-                Tags = selectList;
+                Tags = selectList
             };
-            return View();
+            return View(vm);
         }
 
         // POST: PostsController/Create
@@ -57,10 +59,22 @@ namespace ManyToMany.Controllers
         {
             try
             {
-                var model = _mapper.Map<Post>(vm);
-                _unitOfWork.Post.Insert(model);
+                Post post = new Post
+                {
+                    Titulo = vm.Titulo,
+                    Descricao = vm.Descricao
+                };
+                foreach (var item in vm.SelectedTags)
+                {
+                    post.PostTags.Add(new PostTag()
+                    {
+                        TagId = new Guid(item)
+                    });
+                }
+                _unitOfWork.Post.Insert(post);
                 _unitOfWork.Save();
-                return RedirectToAction("Index", "Posts");
+
+                return RedirectToAction(nameof(Index));
             }
             catch
             {
@@ -69,19 +83,55 @@ namespace ManyToMany.Controllers
         }
 
         // GET: PostsController/Edit/5
-        public ActionResult Edit(int id)
+        public ActionResult Edit(Guid id)
         {
-            return View();
+            var model = _unitOfWork.Post.GetById(id);
+            var tags = _unitOfWork.Tag.GetAll();
+            var selectTags = model.PostTags.Select(x => new Tag()
+            {
+                Id = x.Tag.Id,
+                Titulo = x.Tag.Titulo
+            });
+            var selectList = new List<SelectListItem>();
+            tags.ForEach(i => selectList.Add(new SelectListItem(i.Titulo, i.Id.ToString(), selectTags.Select(x => x.Id.ToString()).Contains(i.Id.ToString()))));
+            var vm = new EditPostViewModel()
+            {
+                Id = model.Id,
+                Titulo = model.Titulo,
+                Descricao = model.Descricao,
+                Tags = selectList
+
+            };
+            return View(vm);
         }
 
         // POST: PostsController/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit(int id, IFormCollection collection)
+        public ActionResult Edit(EditPostViewModel vm)
         {
             try
             {
-                return RedirectToAction(nameof(Index));
+                var post = _unitOfWork.Post.GetById(vm.Id);
+                post.Titulo = vm.Titulo;
+                post.Descricao = vm.Descricao;
+                var selectedTags = vm.SelectedTags;
+                var existingTags = post.PostTags.Select(x => x.TagId).ToList();
+                var toAdd = selectedTags.Except(existingTags).ToList();
+                var toRemove = existingTags.Except(existingTags).ToList();
+                var postTags = post.PostTags.Select(x => !toRemove.Contains(x.TagId));
+
+                foreach (var item in toAdd)
+                {
+                    post.PostTags.Add(new PostTag()
+                    {
+                        TagId = item,
+                        PostId = post.Id
+                    });
+                }
+                _unitOfWork.Save();
+
+                return RedirectToAction("Index", "posts");
             }
             catch
             {
@@ -90,19 +140,26 @@ namespace ManyToMany.Controllers
         }
 
         // GET: PostsController/Delete/5
-        public ActionResult Delete(int id)
+        public ActionResult Delete(Guid id)
         {
-            return View();
+            var model = _unitOfWork.Post.GetById(id);
+            var vm = _mapper.Map<PostViewModel>(model);
+
+            return View(vm);
         }
 
         // POST: PostsController/Delete/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Delete(int id, IFormCollection collection)
+        public ActionResult Delete(PostViewModel vm)
         {
             try
             {
-                return RedirectToAction(nameof(Index));
+                var model = _mapper.Map<Post>(vm);
+                _unitOfWork.Post.Delete(model);
+                _unitOfWork.Save();
+
+                return RedirectToAction("Index", "posts");
             }
             catch
             {

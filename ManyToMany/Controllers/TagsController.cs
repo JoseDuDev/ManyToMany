@@ -57,9 +57,8 @@ namespace ManyToMany.Controllers
                 _unitOfWork.Save();
                 return RedirectToAction("Index", "Tags");
             }
-            catch(Exception ex)
+            catch
             {
-
                 return View();
             }
         }

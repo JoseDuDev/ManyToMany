@@ -1,6 +1,7 @@
 ﻿using ManyToMany.Data;
 using ManyToMany.Interfaces;
 using ManyToMany.Models;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -28,7 +29,7 @@ namespace ManyToMany.Repository
 
         public Post GetById(Guid Id)
         {
-            return _context.Posts.FirstOrDefault(p => p.Id == Id);
+            return _context.Posts.Include("PostTags.Tag").FirstOrDefault(x => x.Id == Id);
         }
 
         public void Insert(Post post)

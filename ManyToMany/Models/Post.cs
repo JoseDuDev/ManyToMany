@@ -10,6 +10,6 @@ namespace ManyToMany.Models
         public Guid Id { get; set; }
         public string Titulo { get; set; }
         public string Descricao { get; set; }
-        public List<PostTag> PostTags { get; set; }
+        public List<PostTag> PostTags { get; set; } = new List<PostTag>();
     }
 }
