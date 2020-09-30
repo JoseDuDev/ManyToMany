@@ -8,7 +8,15 @@ namespace ManyToMany.ViewModels.TagsViewModel
 {
     public class TagViewModel
     {
-        public string Id { get; set; }
+        public TagViewModel() { }
+
+        public TagViewModel(Guid id, string titulo)
+        {
+            Id = id;
+            Titulo = titulo;
+        }
+
+        public Guid Id { get; set; }
         public string Titulo { get; set; }
     }
 }

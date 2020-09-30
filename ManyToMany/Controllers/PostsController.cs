@@ -5,6 +5,7 @@ using AutoMapper;
 using ManyToMany.Interfaces;
 using ManyToMany.Models;
 using ManyToMany.ViewModels.PostsViewModel;
+using ManyToMany.ViewModels.TagsViewModel;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -102,7 +103,6 @@ namespace ManyToMany.Controllers
                 Titulo = model.Titulo,
                 Descricao = model.Descricao,
                 Tags = selectList
-
             };
             return View(vm);
         }
@@ -144,8 +144,9 @@ namespace ManyToMany.Controllers
         // GET: PostsController/Delete/5
         public ActionResult Delete(Guid id)
         {
-            var model = _unitOfWork.Post.GetById(id);
-            var vm = _mapper.Map<PostViewModel>(model);
+            Post post = _unitOfWork.Post.GetById(id);
+
+            var vm = _mapper.Map<PostViewModel>(post);
 
             return View(vm);
         }
@@ -157,9 +158,9 @@ namespace ManyToMany.Controllers
         {
             try
             {
-                var model = _mapper.Map<Post>(vm);
+                Post post = _unitOfWork.Post.GetById(vm.Id);
                 
-                _unitOfWork.Post.Delete(model);
+                _unitOfWork.Post.Delete(post);
                 _unitOfWork.Save();
 
                 return RedirectToAction("Index", "posts");
